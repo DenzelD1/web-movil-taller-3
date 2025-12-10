@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import ChartsPanel from "@/components/VentasChartsPanel";
 
 interface Venta {
   id: number;
@@ -16,6 +17,7 @@ export default function VentasTable() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterBy, setFilterBy] = useState<"producto" | "categoria" | "region" | "mes">("producto");
+  const [showPanel, setShowPanel] = useState(false);
 
   useEffect(() => {
     const fetchVentas = async () => {
@@ -32,6 +34,9 @@ export default function VentasTable() {
     };
 
     fetchVentas();
+
+    const interval = setInterval(fetchVentas, 15000);
+    return () => clearInterval(interval);
   }, []);
 
   const ventasFiltradas = useMemo(() => {
@@ -60,7 +65,7 @@ export default function VentasTable() {
     <div className="overflow-x-auto shadow-md sm:rounded-lg">
       <div className="flex items-center gap-3 mb-4">
         <select
-          className="text-black p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="text-black p-2.5 ml-2 mt-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           value={filterBy}
           onChange={(e) => setFilterBy(e.target.value as typeof filterBy)}
         >
@@ -80,11 +85,21 @@ export default function VentasTable() {
               ? "Buscar por región"
               : "Ingresar mes (1-12)"
           }
-          className="text-black flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="text-black flex-1 p-2 mt-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
+        <button
+          className="px-4 py-2 mt-1.5 mr-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onClick={() => setShowPanel((s) => !s)}
+        >
+          {showPanel ? "Ocultar gráficos" : "Mostrar gráficos"}
+        </button>
       </div>
+
+      {showPanel && (
+        <ChartsPanel ventas={ventas} />
+      )}
       <table className="w-full text-sm text-left text-gray-500">
         <thead className="text-xs text-gray-700 uppercase bg-gray-50">
           <tr>
