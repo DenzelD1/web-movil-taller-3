@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface Venta {
   id: number;
@@ -14,6 +14,8 @@ interface Venta {
 export default function VentasTable() {
   const [ventas, setVentas] = useState<Venta[]>([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [filterBy, setFilterBy] = useState<"producto" | "categoria" | "region" | "mes">("producto");
 
   useEffect(() => {
     const fetchVentas = async () => {
@@ -32,10 +34,57 @@ export default function VentasTable() {
     fetchVentas();
   }, []);
 
+  const ventasFiltradas = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return ventas;
+    if (filterBy === "producto") {
+      return ventas.filter((v) => v.producto.toLowerCase().includes(q));
+    }
+    if (filterBy === "categoria") {
+      return ventas.filter((v) => v.categoria.toLowerCase().includes(q));
+    }
+    if (filterBy === "region") {
+      return ventas.filter((v) => (v.region ?? "").toLowerCase().includes(q));
+    }
+    if (filterBy === "mes") {
+      const m = parseInt(q, 10);
+      if (Number.isNaN(m) || m < 1 || m > 12) return [];
+      return ventas.filter((v) => new Date(v.fecha).getMonth() + 1 === m);
+    }
+    return ventas;
+  }, [ventas, search, filterBy]);
+
   if (loading) return <div className="p-4">Cargando datos...</div>;
 
   return (
     <div className="overflow-x-auto shadow-md sm:rounded-lg">
+      <div className="flex items-center gap-3 mb-4">
+        <select
+          className="text-black p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={filterBy}
+          onChange={(e) => setFilterBy(e.target.value as typeof filterBy)}
+        >
+          <option value="producto">Producto</option>
+          <option value="categoria">Categoría</option>
+          <option value="region">Región</option>
+          <option value="mes">Mes</option>
+        </select>
+        <input
+          type={filterBy === "mes" ? "number" : "text"}
+          placeholder={
+            filterBy === "producto"
+              ? "Buscar por producto"
+              : filterBy === "categoria"
+              ? "Buscar por categoría"
+              : filterBy === "region"
+              ? "Buscar por región"
+              : "Ingresar mes (1-12)"
+          }
+          className="text-black flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
       <table className="w-full text-sm text-left text-gray-500">
         <thead className="text-xs text-gray-700 uppercase bg-gray-50">
           <tr>
@@ -48,7 +97,7 @@ export default function VentasTable() {
           </tr>
         </thead>
         <tbody>
-          {ventas.map((venta) => (
+          {ventasFiltradas.map((venta) => (
             <tr key={venta.id} className="bg-white border-b hover:bg-gray-50">
               <td className="px-6 py-4">{venta.id}</td>
               <td className="px-6 py-4 font-medium text-gray-900">{venta.producto}</td>

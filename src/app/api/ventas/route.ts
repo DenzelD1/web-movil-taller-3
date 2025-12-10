@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { ventaSchema } from "@/lib/validations";
+import { ZodError } from "zod";
 
 export async function GET() {
     try {
@@ -25,10 +26,11 @@ export async function POST(request: Request) {
         });
 
         return NextResponse.json(nuevaVenta, {status: 201});
-    } catch(error: any) {
-        if(error.name === 'ZodError') {
-            return NextResponse.json({error: error.errors}, {status: 400})
+    } catch(error: unknown) {
+        if (error instanceof ZodError) {
+            return NextResponse.json({ error: error.issues }, { status: 400 });
         }
-        return NextResponse.json({message: "Error al crear venta", error: (error as Error).message}, {status: 500});
+        const message = error instanceof Error ? error.message : "Unknown error";
+        return NextResponse.json({ message: "Error al crear venta", error: message }, { status: 500 });
     }
 }
