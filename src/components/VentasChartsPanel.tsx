@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useAppSelector } from "@/store/hooks";
 import {
   ResponsiveContainer,
   BarChart as RBarChart,
@@ -32,6 +33,7 @@ interface Venta {
 }
 
 export default function ChartsPanel({ ventas }: { ventas: Venta[] }) {
+  const chartType = useAppSelector((s) => s.ventasUI.chartType);
   const COLORS = ["#3b82f6", "#ef4444", "#22c55e", "#f59e0b", "#06b6d4", "#a78bfa", "#ec4899"];
   const porCategoria = useMemo(() => {
     const map = new Map<string, number>();
@@ -89,7 +91,7 @@ export default function ChartsPanel({ ventas }: { ventas: Venta[] }) {
   return (
     <div className="mb-6 p-4 bg-white border rounded-md">
       <h2 className="text-xl font-semibold mb-4 text-gray-800">Panel de gráficos</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {chartType === "categorias" && (
         <div>
           <h3 className="text-sm font-medium text-gray-700 mb-2">Ventas por categoría</h3>
           <ResponsiveContainer width="100%" height={240}>
@@ -103,7 +105,8 @@ export default function ChartsPanel({ ventas }: { ventas: Venta[] }) {
             </RBarChart>
           </ResponsiveContainer>
         </div>
-
+      )}
+      {chartType === "region" && (
         <div>
           <h3 className="text-sm font-medium text-gray-700 mb-2">Ventas por región</h3>
           <ResponsiveContainer width="100%" height={240}>
@@ -118,7 +121,8 @@ export default function ChartsPanel({ ventas }: { ventas: Venta[] }) {
             </RPieChart>
           </ResponsiveContainer>
         </div>
-
+      )}
+      {chartType === "montoPorMes" && (
         <div>
           <h3 className="text-sm font-medium text-gray-700 mb-2">Monto total por mes</h3>
           <ResponsiveContainer width="100%" height={240}>
@@ -132,7 +136,8 @@ export default function ChartsPanel({ ventas }: { ventas: Venta[] }) {
             </RLineChart>
           </ResponsiveContainer>
         </div>
-
+      )}
+      {chartType === "topProductos" && (
         <div>
           <h3 className="text-sm font-medium text-gray-700 mb-2">Top 5 productos vendidos (cantidad)</h3>
           <ResponsiveContainer width="100%" height={240}>
@@ -146,7 +151,8 @@ export default function ChartsPanel({ ventas }: { ventas: Venta[] }) {
             </RRadarChart>
           </ResponsiveContainer>
         </div>
-
+      )}
+      {chartType === "promedioPorCategoria" && (
         <div>
           <h3 className="text-sm font-medium text-gray-700 mb-2">Monto promedio por categoría</h3>
           <ResponsiveContainer width="100%" height={240}>
@@ -160,7 +166,7 @@ export default function ChartsPanel({ ventas }: { ventas: Venta[] }) {
             </RBarChart>
           </ResponsiveContainer>
         </div>
-      </div>
+      )}
     </div>
   );
 }
