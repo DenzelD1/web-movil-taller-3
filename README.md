@@ -10,11 +10,6 @@ Juan Ignacio Castro, 21.219.278-3
 
 Martin Adones Tapia, 21.293.739-8
 
-## Requisitos
-
-- Node.js 18+ (recomendado 20)
-- Base de datos PostgreSQL
-
 ## Configurar entorno
 
 1. Instalar dependencias: `npm install`
@@ -27,7 +22,6 @@ Martin Adones Tapia, 21.293.739-8
 2. Aplicar migraciones (dev): `npx prisma migrate dev`
 3. Poblar datos: `npx prisma db seed`
 4. Levantar servidor: `npm run dev`
-   - Abrir `http://localhost:3000`
 
 ## Producción
 
